@@ -1,8 +1,7 @@
-# erl-div-clim-resp
 ----------
 # Replication code for "Diverging Climate Response of Corn Yield and Carbon Use Efficiency across the U.S."
 ----------
-This repository contains the codes for the economic research paper titled "Diverging Climate Response of Corn Yield and Carbon Use Efficiency across the U.S." by . For any questions or issues, please contact the author of the research paper. Thank you for using these codes!
+This repository contains the codes for the economic research paper titled "Diverging Climate Response of Corn Yield and Carbon Use Efficiency across the U.S." by Shuo Yu, Nicola Falco, Nivedita Patel, Yuxin Wu, and Haruko Wainwright. For any questions or issues, please contact the author of the research paper. Thank you for using these codes!
 
 Last Revision: April 2023.
 
