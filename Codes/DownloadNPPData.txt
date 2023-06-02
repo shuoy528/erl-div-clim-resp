@@ -1,0 +1,72 @@
+//Download Cumulated NPP from Google Earth Engine
+//Date: 09/01/2022
+
+//Parameters.
+var crop = 'corn';
+//Cropcode for the crop in USDA Cropland Data Layer.
+var cropcode = 1;
+
+//Import county shapefile.
+//Please upload the county shapefile to Assets before importing.
+//Please change the file address accordingly.
+var counties = ee.FeatureCollection("projects/ee-yieldcue/assets/cb_2018_us_county_20m");
+
+var addYearCrop = function(feature){
+                    return feature.set(
+                      {'Year':year, 'CropLand':crop}
+                      );
+                  };
+
+for(var yr=2001; yr<2021; yr=yr+1){
+
+  var startdate = yr + '-01-01';
+  var enddate = yr + '-12-31';
+  var year = yr;
+  var file_name = 'NPPintegral' + yr + '_' + crop;
+  
+  // load cropland data.
+  var cropCollection = ee.ImageCollection("USDA/NASS/CDL")
+                         .filterDate(startdate, enddate);
+  var image = ee.Image(cropCollection.mean());
+  
+  //Create a binary mask. eq to 1 indicates the crop we want.
+  var mask = image.select('cropland').eq(cropcode);
+  
+  //Import MODIS NPP data layer
+  var nppCollection = ee.ImageCollection("UMT/NTSG/v2/MODIS/NPP")
+                        .filterDate(startdate, enddate);
+  var size = nppCollection.size().getInfo();
+  var listOfNppImages = nppCollection.toList(size);
+
+  //Filter each NPP image using mask and add masked composite to list.
+  var dataList = [];
+  for(var x=0; x<size; x=x+1){
+    var image = ee.Image(listOfNppImages.get(x));
+    var maskedComposite = image.updateMask(mask);
+    dataList.push(maskedComposite);
+  }
+
+  //Create ImageCollection from list of masked NPP images.
+  var maskedNppCollection = ee.ImageCollection(dataList);
+  
+  //Find NPP integral for the year by using sum reducer.
+  var NPPintegral = maskedNppCollection.reduce(ee.Reducer.sum());
+  
+  
+  var countyNPP = NPPintegral.reduceRegions({
+                    collection: counties,
+                    reducer: ee.Reducer.mean(),
+                    scale: 250 // the resolution of the dataset
+                  });
+  
+  var countyNPP = countyNPP.map(addYearCrop);
+  
+  //Export data to csv file
+  Export.table.toDrive({
+    collection: countyNPP,
+    description: file_name,
+    fileFormat: 'CSV', 
+    folder: 'test'
+  });
+
+}

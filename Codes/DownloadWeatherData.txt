@@ -1,0 +1,77 @@
+//Download Weather Data from Google Earth Engine
+//Date: 09/01/2022
+
+//Parameters.
+var crop = 'corn';
+//Cropcode for the crop in USDA Cropland Data Layer.
+var cropcode = 1;
+
+//Import county shapefile.
+//Please upload the county shapefile to Assets before importing.
+//Please change the file address accordingly.
+var counties = ee.FeatureCollection("projects/ee-yieldcue/assets/cb_2018_us_county_20m");
+
+//Function to add the date to each image as a band.
+function addDate(image){
+    return image.addBands(
+      image.metadata('system:time_start')
+           .rename(['Date'])
+      );
+}
+
+//Function to add crop type.
+function addCrop(feature){
+  return feature.set({'CropLand':crop});
+}
+
+for(var yr=2001; yr<2021; yr=yr+1){
+  
+  var startdate = yr + '-01-01';
+  var enddate = yr + '-12-31';
+  var year = yr;
+  var file_name = 'weather' + yr + '_' + crop;
+  
+  //Import cropland data layer.
+  var cropcollection = ee.ImageCollection("USDA/NASS/CDL")
+                         .filterDate(startdate, enddate);
+  var image = ee.Image(cropcollection.mean())
+  
+  //Create a binary mask. eq to 1 indicates the crop we want.
+  var mask = image.select('cropland').eq(cropcode);
+  
+  //Import weather data layer.
+  var weathercollection = ee.ImageCollection("ECMWF/ERA5/DAILY")
+                            .filterDate(startdate, enddate);
+  weathercollection = weathercollection.map(addDate);
+  var size = weathercollection.size().getInfo();
+  var listOfWeatherImages = weathercollection.toList(size);
+  
+  for(var x=0; x<size; x=x+1){
+    var image = ee.Image(listOfWeatherImages.get(x));
+    var maskedComposite = image.updateMask(mask);
+    var countyWeather = maskedComposite.reduceRegions({
+                          collection: counties,
+                          reducer: ee.Reducer.mean(),
+                          scale: 250 // the resolution of the dataset
+                        });
+    
+    var countyWeather = countyWeather.map(addCrop);
+       
+    if(x===0){
+      var countyWeatherC = countyWeather;
+    }
+    else
+    {
+      countyWeatherC = countyWeatherC.merge(countyWeather);
+    }
+  }
+  
+  // Export the FeatureCollection to a CSV file in connected Google Drive
+  Export.table.toDrive({
+    collection: countyWeatherC,
+    description: file_name,
+    fileFormat: 'CSV', 
+    folder: 'test'
+  });
+
+}
