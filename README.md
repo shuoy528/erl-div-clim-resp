@@ -5,11 +5,6 @@ This repository contains the codes for the economic research paper titled "Diver
 
 Last Revision: April 2023.
 
-----------
-# How to cite this work?
-----------
-Yu et al 2023 _Environ. Res. Lett._ https://doi.org/10.1088/1748-9326/acd5e4
-
 ---------
 # How to run the files in this repository? (Pipeline)
 ---------
@@ -36,3 +31,8 @@ The codes are written in Python and JavaScript, and are designed to be run on th
     - Regressions.ipynb: This Jupyter Notebook file contains the code for regressions, including the Random Forest regression and county-level time series regressions, using the cleaned data. It also contains the code for visualizing the results of the data analysis, such as generating plots or maps as shown in Figures 2 and 3.
     - MovingWindowReg.ipynb: This Jupyter Notebook file contains the code for moving window regressions, using the cleaned data. It also contains the code for visualizing the results of the data analysis, which generates maps as shown in Figure 4.
 3. Note: Please make sure to follow the dependencies and installation instructions provided in the codes to ensure smooth execution. Please refer to the comments in the code for additional instructions or explanations.
+
+----------
+# How to cite this work?
+----------
+Yu et al 2023 _Environ. Res. Lett._ https://doi.org/10.1088/1748-9326/acd5e4
