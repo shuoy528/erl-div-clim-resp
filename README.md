@@ -5,6 +5,11 @@ This repository contains the codes for the economic research paper titled "Diver
 
 Last Revision: April 2023.
 
+----------
+# How to cite this work?
+----------
+Yu et al 2023 _Environ. Res. Lett._ https://doi.org/10.1088/1748-9326/acd5e4
+
 ---------
 # How to run the files in this repository? (Pipeline)
 ---------
